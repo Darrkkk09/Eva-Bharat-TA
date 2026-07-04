@@ -21,8 +21,7 @@ func NewTicketHandler(s *store.MemoryStore) *TicketHandler {
 }
 
 // CreateTicketRequest defines request body for ticket creation.
-// Note: created_by is removed from the JSON request because it is linked
-// directly to the authenticated user from the context.
+
 type CreateTicketRequest struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
@@ -35,7 +34,6 @@ type UpdateStatusRequest struct {
 
 // Create creates a new ticket linked to the authenticated user.
 func (h *TicketHandler) Create(w http.ResponseWriter, r *http.Request) {
-	// Extract the authenticated user from context
 	user, ok := GetAuthenticatedUser(r)
 	if !ok {
 		RespondWithError(w, http.StatusUnauthorized, "unauthorized")
@@ -53,7 +51,6 @@ func (h *TicketHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Link ticket to the logged-in user (user.ID)
 	ticket, err := h.Store.CreateTicket(req.Title, req.Description, user.ID)
 	if err != nil {
 		RespondWithError(w, http.StatusInternalServerError, "failed to create ticket")
