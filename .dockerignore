@@ -1,0 +1,33 @@
+# Ignore git history
+.git
+.gitignore
+.github
+
+# Ignore docker files
+Dockerfile
+.dockerignore
+
+# Ignore documentation & local development files
+README.md
+LICENSE
+.env
+.env.local
+
+# Ignore compiled binaries (if built locally)
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+ticket-system-bin
+/bin
+/out
+
+# Ignore Go build caches & IDE files
+.gocache
+.idea/
+.vscode/
+*.swp
+*.swo
