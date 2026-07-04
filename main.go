@@ -28,11 +28,9 @@ func SetupRouter(memStore *store.MemoryStore) *http.ServeMux {
 	// System health check
 	mux.HandleFunc("GET /health", handleHealth)
 
-	// Authentication endpoints
 	mux.HandleFunc("POST /auth/register", authHandler.Register)
 	mux.HandleFunc("POST /auth/login", authHandler.Login)
 
-	// Ticket management endpoints (using Go 1.22 path routing syntax & wrapped with AuthMiddleware)
 	auth := handlers.AuthMiddleware(memStore)
 	mux.Handle("POST /tickets", auth(http.HandlerFunc(ticketHandler.Create)))
 	mux.Handle("GET /tickets", auth(http.HandlerFunc(ticketHandler.List)))

@@ -1,280 +1,71 @@
-# Ticket System Backend in Go (Modularized)
+# Ticket System Backend
 
-This is a clean, production-grade starter template for a Ticket System backend built in Go, designed for a backend internship. It features a modular directory layout, thread-safe in-memory database store (using dependency injection), and HTTP routing using standard Go 1.22+ features.
+## Project Overview
 
-## Project Structure
+This repository contains a **ticket‑system backend** written in Go. It provides RESTful APIs for:
+- User registration and login 
+- Ticket creation, listing, retrieval, and status updates
+- Ownership checks so users can only modify their own tickets
 
-```text
-go-evabharat/
-├── go.mod            # Go module file
-├── main.go           # Server startup, dependency injection & routing setup
-├── models/           # Declarations of data models
-│   ├── ticket.go
-│   └── user.go
-├── store/            # In-memory storage layer handling data mutation safely
-│   └── memory.go
-└── handlers/         # Controller/routing layer parsing JSON requests
-    ├── auth.go
-    ├── ticket.go
-    ├── middleware.go # Authentication middleware
-    └── helpers.go    # HTTP response helpers (e.g. JSON encoders)
-```
+The service is built with the standard `net/http` ServeMux (Go 1.22+), uses an in‑memory store (`store.MemoryStore`), and is fully containerised via Docker.
 
-## Requirements
+## Local Development
 
-- **Go 1.22 or higher** (uses the enhanced HTTP routing patterns).
+### Prerequisites
+- Go 1.22 or newer
+- Docker (for container builds)
 
-## How to Run
-
-1. Clone or navigate to the repository directory.
-2. Run the application:
-   ```bash
-   go run main.go
-   ```
-3. The server will start listening on port `8080`.
-
-## API Endpoints
-
-### 1. Health Check
-- **URL:** `/health`
-- **Method:** `GET`
-- **Response (200 OK):**
-  ```json
-  {
-    "status": "healthy",
-    "time": "2026-07-03T19:00:00+05:30"
-  }
-  ```
-
----
-
-### Auth Group (Public)
-
-#### 2. User Registration
-- **URL:** `/auth/register`
-- **Method:** `POST`
-- **Payload:**
-  ```json
-  {
-    "username": "johndoe",
-    "email": "johndoe@example.com",
-    "password": "securepassword123"
-  }
-  ```
-- **Response (201 Created):**
-  ```json
-  {
-    "id": 1,
-    "username": "johndoe",
-    "email": "johndoe@example.com"
-  }
-  ```
-  *(Note: Password is kept hidden from JSON payloads automatically using struct tags).*
-
-#### 3. User Login
-- **URL:** `/auth/login`
-- **Method:** `POST`
-- **Payload:**
-  ```json
-  {
-    "email": "johndoe@example.com",
-    "password": "securepassword123"
-  }
-  ```
-- **Response (200 OK):**
-  ```json
-  {
-    "token": "dummy-jwt-token-for-user-1",
-    "user": {
-      "id": 1,
-      "username": "johndoe",
-      "email": "johndoe@example.com"
-    }
-  }
-  ```
-
----
-
-### Ticket Group (Protected)
-*All routes in this group require the HTTP Header: `Authorization: Bearer dummy-jwt-token-for-user-<id>`*
-
-#### 4. Create Ticket
-- **URL:** `/tickets`
-- **Method:** `POST`
-- **Payload:**
-  ```json
-  {
-    "title": "Bug in payments page",
-    "description": "Getting a 500 error on checkout page"
-  }
-  ```
-- **Response (201 Created):**
-  ```json
-  {
-    "id": 1,
-    "title": "Bug in payments page",
-    "description": "Getting a 500 error on checkout page",
-    "status": "open",
-    "created_by": 1,
-    "created_at": "2026-07-03T19:05:00+05:30",
-    "updated_at": "2026-07-03T19:05:00+05:30"
-  }
-  ```
-
-#### 5. List Tickets
-- **URL:** `/tickets`
-- **Method:** `GET`
-- **Description:** Returns only the tickets belonging to the authenticated user.
-- **Response (200 OK):**
-  ```json
-  [
-    {
-      "id": 1,
-      "title": "Bug in payments page",
-      "description": "Getting a 500 error on checkout page",
-      "status": "open",
-      "created_by": 1,
-      "created_at": "2026-07-03T19:05:00+05:30",
-      "updated_at": "2026-07-03T19:05:00+05:30"
-    }
-  ]
-  ```
-
-#### 6. Get Ticket by ID
-- **URL:** `/tickets/{id}` (e.g. `/tickets/1`)
-- **Method:** `GET`
-- **Description:** Returns the details of a specific ticket. Users can only fetch tickets they created.
-- **Response (200 OK):**
-  ```json
-  {
-    "id": 1,
-    "title": "Bug in payments page",
-    "description": "Getting a 500 error on checkout page",
-    "status": "open",
-    "created_by": 1,
-    "created_at": "2026-07-03T19:05:00+05:30",
-    "updated_at": "2026-07-03T19:05:00+05:30"
-  }
-  ```
-
-#### 7. Update Ticket Status
-- **URL:** `/tickets/{id}/status` (e.g. `/tickets/1/status`)
-- **Method:** `PATCH`
-- **Description:** Updates the ticket status. State transitions must strictly follow: `open` -> `in_progress` -> `closed`. Once a ticket is `closed`, it cannot be reopened or edited.
-- **Payload:**
-  ```json
-  {
-    "status": "in_progress"
-  }
-  ```
-- **Response (200 OK):**
-  ```json
-  {
-    "id": 1,
-    "title": "Bug in payments page",
-    "description": "Getting a 500 error on checkout page",
-    "status": "in_progress",
-    "created_by": 1,
-    "created_at": "2026-07-03T19:05:00+05:30",
-    "updated_at": "2026-07-03T19:06:00+05:30"
-  }
-  ```
-
----
-
-## Testing with `curl`
-
-**1. Create a user:**
+### Run the server locally (no Docker)
 ```bash
-curl -i -X POST http://localhost:8080/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username": "intern", "email": "intern@example.com", "password": "password123"}'
-```
+# Install dependencies (if any)
+ go mod tidy
 
-**2. Login to get the dummy token:**
+# Start the server
+ go run main.go
+```
+The server will listen on `localhost:8080` (or the port set in the `PORT` environment variable).
+
+### Health check
 ```bash
-curl -i -X POST http://localhost:8080/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email": "intern@example.com", "password": "password123"}'
+curl http://localhost:8080/health
+# Expected output
+# {"status":"ok"}
 ```
 
-**3. Create a Ticket (linked to authenticated user):**
+## Docker
+
+### Build the image
 ```bash
-curl -i -X POST http://localhost:8080/tickets \
-  -H "Authorization: Bearer dummy-jwt-token-for-user-1" \
-  -H "Content-Type: application/json" \
-  -d '{"title": "Database connection drop", "description": "Losing connection every 5 minutes"}'
+docker build -t ticket-system .
 ```
 
-**4. Retrieve all Tickets (filtered for user 1):**
+### Run the container
 ```bash
-curl -i -H "Authorization: Bearer dummy-jwt-token-for-user-1" http://localhost:8080/tickets
+docker run -p 8080:8080 ticket-system
 ```
+You can now hit the same endpoints as in local mode, e.g. `curl http://localhost:8080/health`.
 
-**5. Get Ticket with ID 1:**
-```bash
-curl -i -H "Authorization: Bearer dummy-jwt-token-for-user-1" http://localhost:8080/tickets/1
-```
+## Deployment
 
-**6. Transition ticket status to in_progress:**
-```bash
-curl -i -X PATCH http://localhost:8080/tickets/1/status \
-  -H "Authorization: Bearer dummy-jwt-token-for-user-1" \
-  -H "Content-Type: application/json" \
-  -d '{"status": "in_progress"}'
-```
+The application can be deployed to any free‑tier hosting platform that supports Docker images (Render, Railway, Fly.io, etc.).
 
-**7. Transition ticket status to closed:**
-```bash
-curl -i -X PATCH http://localhost:8080/tickets/1/status \
-  -H "Authorization: Bearer dummy-jwt-token-for-user-1" \
-  -H "Content-Type: application/json" \
-  -d '{"status": "closed"}'
-```
+- **Deployed URL (placeholder):** `https://<your‑service>.onrender.com`
+- The `/health` endpoint must be publicly accessible and return `{ "status": "ok" }`.
 
-**8. Attempt to reopen closed ticket (Expected: 400 Bad Request):**
-```bash
-curl -i -X PATCH http://localhost:8080/tickets/1/status \
-  -H "Authorization: Bearer dummy-jwt-token-for-user-1" \
-  -H "Content-Type: application/json" \
-  -d '{"status": "in_progress"}'
-```
+## Environment Variables
 
----
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT`   | Port the server binds to | `8080` |
 
-## Docker Support
+Create a `.env.example` file with the above variables to illustrate required configuration.
 
-This setup includes a multi-stage `Dockerfile` and a `docker-compose.yml` configuration.
+## Assumptions & Notes
+- The JWT is a dummy token; no real signing is performed.
+- The in‑memory store means data is lost on server restart – suitable for a prototype or demo.
+- No external database or caching layer is used to keep the implementation simple.
+- The health endpoint returns a static JSON payload `{ "status": "ok" }` as required by the deployment contract.
 
-### Running with Docker Compose
-If you have Docker installed locally, you can build and run the entire application with one command:
-```bash
-docker compose up --build -d
-```
-Verify the server is running by hitting the health check endpoint:
-```bash
-curl -i http://localhost:8080/health
-```
+## License
 
-### Running and Testing Without Local Docker (Using Google Cloud Shell)
-If you don't have Docker installed on your PC, you can test the Docker setup for free in your browser using **Google Cloud Shell** (which has Docker pre-installed):
-
-1. Open [Google Cloud Shell](https://shell.cloud.google.com).
-2. Clone this repository (or drag-and-drop the files into the Cloud Shell editor).
-3. Start the container in the background:
-   ```bash
-   docker compose up --build -d
-   ```
-4. Test the health check endpoint:
-   ```bash
-   curl -i http://localhost:8080/health
-   ```
-5. Test the entire route test suite inside a temporary Go docker container:
-   ```bash
-   docker run --rm -v $(pwd):/app -w /app golang:1.22-alpine go test -v ./...
-   ```
-6. Stop the container when finished:
-   ```bash
-   docker compose down
-   ```
-
+MIT – feel free to fork, modify, and deploy.
