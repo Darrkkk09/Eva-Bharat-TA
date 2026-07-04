@@ -1,31 +1,74 @@
 # Ticket System Backend
 
-A robust Golang-based ticket management system featuring authentication, ownership-based authorization, and containerized deployment.
+A Golang-based ticket management backend with JWT authentication, ownership-based authorization, and Docker support.
+
+---
 
 ## 🚀 Deployment
-*   **Deployed URL:** [https://ranjit-eva-bharat-assingment.onrender.com](https://ranjit-eva-bharat-assingment.onrender.com)
-*   **Health Check:** [https://ranjit-eva-bharat-assingment.onrender.com/health](https://ranjit-eva-bharat-assingment.onrender.com/health)
 
-## 📋 API Endpoints
-All protected endpoints require an `Authorization: Bearer <token>` header.
+**Base URL**
 
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/health` | Service health check |
-| `POST` | `/auth/register` | Register a new user |
-| `POST` | `/auth/login` | Login and receive JWT |
-| `POST` | `/tickets` | Create a new ticket |
-| `GET` | `/tickets` | List logged-in user's tickets |
-| `GET` | `/tickets/{id}` | Get specific ticket details |
-| `PATCH` | `/tickets/{id}/status` | Update ticket status |
+https://ranjit-eva-bharat-assingment.onrender.com
 
-## 🛠 Prerequisites
+**Health Check**
+
+https://ranjit-eva-bharat-assingment.onrender.com/health
+
+---
+
+## 💻 Run Locally
+
+### Prerequisites
+
 - Go 1.22+
 - Docker
 
-## 💻 Local Development
+### Install Dependencies
 
-### Run natively
 ```bash
 go mod tidy
+```
+
+### Run
+
+```bash
 go run main.go
+```
+
+The server will start on:
+
+```
+http://localhost:8080
+```
+
+---
+
+## 🐳 Docker
+
+### Build Image
+
+```bash
+docker build -t ticket-system .
+```
+
+### Run Container
+
+```bash
+docker run -p 8080:8080 ticket-system
+```
+
+---
+
+## 📝 Assumptions
+
+- JWT is used for authentication.
+- Passwords are securely hashed before storage.
+- Data is stored in memory and will be lost when the server restarts.
+- Users can only access and modify their own tickets.
+- Ticket status follows the workflow:
+  - `open → in_progress → closed`
+- Once a ticket is marked as `closed`, it cannot be reopened.
+- Protected endpoints require:
+  ```
+  Authorization: Bearer <JWT_TOKEN>
+  ```
