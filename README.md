@@ -1,71 +1,31 @@
 # Ticket System Backend
 
-## Project Overview
+A robust Golang-based ticket management system featuring authentication, ownership-based authorization, and containerized deployment.
 
-This repository contains a **ticket‑system backend** written in Go. It provides RESTful APIs for:
-- User registration and login 
-- Ticket creation, listing, retrieval, and status updates
-- Ownership checks so users can only modify their own tickets
+## 🚀 Deployment
+*   **Deployed URL:** [https://ranjit-eva-bharat-assingment.onrender.com](https://ranjit-eva-bharat-assingment.onrender.com)
+*   **Health Check:** [https://ranjit-eva-bharat-assingment.onrender.com/health](https://ranjit-eva-bharat-assingment.onrender.com/health)
 
-The service is built with the standard `net/http` ServeMux (Go 1.22+), uses an in‑memory store (`store.MemoryStore`), and is fully containerised via Docker.
+## 📋 API Endpoints
+All protected endpoints require an `Authorization: Bearer <token>` header.
 
-## Local Development
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health` | Service health check |
+| `POST` | `/auth/register` | Register a new user |
+| `POST` | `/auth/login` | Login and receive JWT |
+| `POST` | `/tickets` | Create a new ticket |
+| `GET` | `/tickets` | List logged-in user's tickets |
+| `GET` | `/tickets/{id}` | Get specific ticket details |
+| `PATCH` | `/tickets/{id}/status` | Update ticket status |
 
-### Prerequisites
-- Go 1.22 or newer
-- Docker (for container builds)
+## 🛠 Prerequisites
+- Go 1.22+
+- Docker
 
-### Run the server locally (no Docker)
+## 💻 Local Development
+
+### Run natively
 ```bash
-# Install dependencies (if any)
- go mod tidy
-
-# Start the server
- go run main.go
-```
-The server will listen on `localhost:8080` (or the port set in the `PORT` environment variable).
-
-### Health check
-```bash
-curl http://localhost:8080/health
-# Expected output
-# {"status":"ok"}
-```
-
-## Docker
-
-### Build the image
-```bash
-docker build -t ticket-system .
-```
-
-### Run the container
-```bash
-docker run -p 8080:8080 ticket-system
-```
-You can now hit the same endpoints as in local mode, e.g. `curl http://localhost:8080/health`.
-
-## Deployment
-
-The application can be deployed to any free‑tier hosting platform that supports Docker images (Render, Railway, Fly.io, etc.).
-
-- **Deployed URL (placeholder):** `https://<your‑service>.onrender.com`
-- The `/health` endpoint must be publicly accessible and return `{ "status": "ok" }`.
-
-## Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT`   | Port the server binds to | `8080` |
-
-Create a `.env.example` file with the above variables to illustrate required configuration.
-
-## Assumptions & Notes
-- The JWT is a dummy token; no real signing is performed.
-- The in‑memory store means data is lost on server restart – suitable for a prototype or demo.
-- No external database or caching layer is used to keep the implementation simple.
-- The health endpoint returns a static JSON payload `{ "status": "ok" }` as required by the deployment contract.
-
-## License
-
-MIT – feel free to fork, modify, and deploy.
+go mod tidy
+go run main.go
