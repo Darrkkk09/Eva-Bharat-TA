@@ -2,12 +2,15 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"go-evabharat/models"
 	"go-evabharat/store"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type contextKey string
@@ -30,15 +33,22 @@ func AuthMiddleware(s *store.MemoryStore) func(http.Handler) http.Handler {
 				return
 			}
 
-			token := parts[1]
-			prefix := "dummy-jwt-token-for-user-"
-			if !strings.HasPrefix(token, prefix) {
+			tokenStr := parts[1]
+			claims := &jwt.RegisteredClaims{}
+			token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+				// Validate the signing method
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+				}
+				return jwtKey, nil
+			})
+
+			if err != nil || !token.Valid {
 				RespondWithError(w, http.StatusUnauthorized, "invalid or expired token")
 				return
 			}
 
-			idStr := strings.TrimPrefix(token, prefix)
-			userID, err := strconv.Atoi(idStr)
+			userID, err := strconv.Atoi(claims.Subject)
 			if err != nil {
 				RespondWithError(w, http.StatusUnauthorized, "invalid token claims")
 				return

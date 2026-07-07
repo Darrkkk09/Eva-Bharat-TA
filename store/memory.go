@@ -14,8 +14,7 @@ var (
 	ErrTicketNotFound = errors.New("ticket not found")
 )
 
-// MemoryStore encapsulates all the in-memory data structures and mutexes.
-// This structure implements thread-safety and models real database operations.
+// This structure implements models real database operations.
 type MemoryStore struct {
 	usersMu    sync.RWMutex
 	users      []models.User
@@ -26,7 +25,7 @@ type MemoryStore struct {
 	nextTicketID int
 }
 
-// NewMemoryStore initializes a new in-memory database store instance.
+// NewMemoryStore initializes a new in-memory.
 func NewMemoryStore() *MemoryStore {
 	return &MemoryStore{
 		users:        make([]models.User, 0),
@@ -35,10 +34,6 @@ func NewMemoryStore() *MemoryStore {
 		nextTicketID: 1,
 	}
 }
-
-// =========================================================================
-// USER OPERATIONS
-// =========================================================================
 
 // CreateUser registers a new user if the email is not already taken.
 func (s *MemoryStore) CreateUser(username, email, password string) (models.User, error) {
@@ -56,7 +51,7 @@ func (s *MemoryStore) CreateUser(username, email, password string) (models.User,
 		ID:       s.nextUserID,
 		Username: username,
 		Email:    email,
-		Password: password, // Store in plaintext for mock purposes
+		Password: password,
 	}
 	s.users = append(s.users, user)
 	s.nextUserID++
@@ -90,9 +85,6 @@ func (s *MemoryStore) GetUserByID(id int) (models.User, error) {
 	return models.User{}, ErrUserNotFound
 }
 
-// =========================================================================
-// TICKET OPERATIONS
-// =========================================================================
 
 // CreateTicket creates a support ticket in the in-memory database.
 func (s *MemoryStore) CreateTicket(title, description string, createdBy int) (models.Ticket, error) {
@@ -149,6 +141,7 @@ func (s *MemoryStore) UpdateTicketStatus(ticketID int, userID int, newStatus str
 
 	// Find the ticket index
 	idx := -1
+	
 	for i, t := range s.tickets {
 		if t.ID == ticketID {
 			idx = i
